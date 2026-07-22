@@ -1,6 +1,6 @@
 /* ---------- KONFIGURACJA ---------- */
 const SPREADSHEET_ID = "1WeR2J62zroTUDGRFnd-Z4bQe196XiP7Kt1Rd_P3SR3M";
-const ENDPOINT_URL = "YOUR_WEBAPP_URL_HERE"; // <-- wklej URL web app po wdrożeniu Apps Script
+const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzZODt27LuaMQCoKR7JKxutDdh-jnJ1J9L2ENUJPcKrv7jpvXFtc53Cl-e7DpPTI77X/exec"; // <-- wklej URL web app po wdrożeniu Apps Script
 
 const sheetLinks = {
     "01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-WCr3FsRxVvSIPLpvielgaKj1npAQjPq0ow_cPCmMntNN2FeXbqxn1ZuXrQ3fKOWjKO9y8--6_DHX/pub?gid=1901112775&single=true&output=csv",
