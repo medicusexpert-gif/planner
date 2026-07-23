@@ -320,11 +320,13 @@ parseTask(task);
 
 planner.innerHTML += `
 
-<div class="cell">
+<div class="cell"
+     data-row="${row.date}"
+     data-tech="${index}">
 
-
-<div 
+<div
 class="card ${colors[index]}"
+draggable="true"
 data-full="${escapeHtml(task)}">
 
 
