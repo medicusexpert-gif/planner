@@ -50,7 +50,12 @@ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid
 
 
 
+
 async function loadPlanner(){
+
+
+try{
+
 
 const response =
 await fetch(csvUrl(currentMonth));
@@ -67,6 +72,7 @@ const rows=text
 .filter(x=>x.trim());
 
 
+
 const data=[];
 
 
@@ -74,12 +80,16 @@ const data=[];
 rows.forEach(row=>{
 
 
-const cols=row.split(",");
+const cols=parseCSVLine(row);
+
 
 
 if(
+
 cols.length>=6 &&
+
 /^\d{4}-\d{2}-\d{2}$/.test(cols[1])
+
 ){
 
 
@@ -89,10 +99,10 @@ date:cols[1],
 
 tasks:[
 
-cols[2]||"",
-cols[3]||"",
-cols[4]||"",
-cols[5]||""
+cols[2] || "",
+cols[3] || "",
+cols[4] || "",
+cols[5] || ""
 
 ]
 
@@ -114,14 +124,28 @@ document.getElementById("current-month").innerHTML =
 currentMonth+" 2026";
 
 
+
 document.getElementById("info").innerHTML =
 
 `
-Planner v0.3.1 |
+Planner v0.3.2 |
 ${currentMonth} |
 dni: ${data.length}
 `;
 
+
+
+}
+
+
+catch(error){
+
+console.error(error);
+
+document.getElementById("info").innerHTML =
+"Błąd: "+error.message;
+
+}
 
 
 }
@@ -133,16 +157,20 @@ dni: ${data.length}
 
 
 
+
 function drawPlanner(data){
 
 
-const planner=document.getElementById("planner");
+const planner =
+document.getElementById("planner");
+
+
 
 planner.innerHTML="";
 
 
 
-planner.innerHTML+=`
+planner.innerHTML +=`
 
 <div class="cell header">
 DATA
@@ -155,7 +183,7 @@ DATA
 technicians.forEach(t=>{
 
 
-planner.innerHTML+=`
+planner.innerHTML +=`
 
 <div class="cell header">
 ${t}
@@ -185,17 +213,21 @@ return;
 
 
 
-planner.innerHTML+=`
+
+planner.innerHTML +=`
 
 <div class="cell date">
 
 ${shortDay(day)}
+
 <br>
+
 ${formatDate(row.date)}
 
 </div>
 
 `;
+
 
 
 
@@ -208,18 +240,23 @@ const card=parseTask(task);
 
 
 
-planner.innerHTML+=`
+planner.innerHTML +=`
 
 <div class="cell">
+
 
 <div 
 class="card ${colors[index]}"
 data-full="${escapeHtml(task)}">
 
 
+
 <div class="task-type">
+
 ${card.icon} ${card.type}
+
 </div>
+
 
 
 <div class="task-main">
@@ -227,6 +264,7 @@ ${card.icon} ${card.type}
 ${card.main}
 
 </div>
+
 
 
 ${card.lines.map(line=>`
@@ -238,7 +276,9 @@ ${line}
 `).join("")}
 
 
+
 </div>
+
 
 </div>
 
@@ -255,6 +295,7 @@ ${line}
 
 
 }
+
 
 
 
@@ -282,6 +323,7 @@ lines:[]
 };
 
 }
+
 
 
 
@@ -337,6 +379,7 @@ removeTime(t)
 
 
 
+
 // TOWAR
 
 if(/TOWAR/i.test(t)){
@@ -365,12 +408,16 @@ cleanText(t)
 
 
 
-// CZAS
+// CZAS PRACY
 
 if(
-/\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}/.test(t)
+
+/\d{1,2}[-:]\d{2}\s*[-]\s*\d{1,2}/.test(t)
+
 ||
+
 /8-16/.test(t)
+
 ){
 
 
@@ -384,7 +431,7 @@ main:getTime(t),
 
 lines:[
 
-cleanText(t)
+t
 
 ]
 
@@ -397,13 +444,12 @@ cleanText(t)
 
 
 
-
 // WYJAZD
 
 if(/\b\d{2,4}\b/.test(t)){
 
 
-let parts=t.split(" ");
+let number=findNumber(t);
 
 
 return {
@@ -412,12 +458,13 @@ type:"WYJAZD",
 
 icon:"🔧",
 
-main:findNumber(t),
+main:number,
 
 lines:
 
-parts
-.filter(x=>x!==findNumber(t))
+t.replace(number,"")
+.trim()
+.split(" ")
 .slice(0,3)
 
 };
@@ -432,11 +479,12 @@ parts
 
 return {
 
+
 type:"ZADANIE",
 
 icon:"📌",
 
-main:t.substring(0,25),
+main:t,
 
 lines:[]
 
@@ -451,33 +499,47 @@ lines:[]
 
 
 
+
 function findNumber(text){
 
-const m=text.match(/\b\d{2,4}\b/);
+const match =
+text.match(/\b\d{2,4}\b/);
 
-return m ? m[0] : "";
+
+return match ? match[0] : "";
 
 }
+
+
+
 
 
 
 
 function getTime(text){
 
-const m=text.match(/\d{1,2}[-:]\d{1,2}|\d{1,2}:\d{2}[-]\d{1,2}:\d{2}/);
+const match =
+text.match(/\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}(:\d{2})?|\b8-16\b/);
 
-return m ? m[0] : "";
+
+return match ? match[0] : "";
 
 }
+
+
+
 
 
 
 
 function removeTime(text){
 
-return text.replace(/\d{1,2}[-:]\d{1,2}/,"").trim();
+return text.replace(/\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}/,"").trim();
 
 }
+
+
+
 
 
 
@@ -490,6 +552,8 @@ return text
 .trim();
 
 }
+
+
 
 
 
@@ -512,15 +576,20 @@ return [
 "Sobota"
 
 ][
+
 new Date(
 p[0],
 p[1]-1,
 p[2]
 ).getDay()
+
 ];
 
 
 }
+
+
+
 
 
 
@@ -549,6 +618,7 @@ return {
 
 
 
+
 function formatDate(date){
 
 const p=date.split("-");
@@ -561,11 +631,81 @@ return `${p[2]}.${p[1]}`;
 
 
 
+
+
+
 function escapeHtml(text){
 
 return text.replace(/"/g,"&quot;");
 
 }
+
+
+
+
+
+
+
+
+function parseCSVLine(line){
+
+
+const result=[];
+
+let current="";
+
+let insideQuotes=false;
+
+
+
+for(let i=0;i<line.length;i++){
+
+
+const char=line[i];
+
+
+
+if(char === '"'){
+
+insideQuotes=!insideQuotes;
+
+continue;
+
+}
+
+
+
+if(char === "," && !insideQuotes){
+
+
+result.push(current.trim());
+
+current="";
+
+}
+
+else{
+
+
+current+=char;
+
+
+}
+
+
+}
+
+
+
+result.push(current.trim());
+
+
+return result;
+
+
+}
+
+
 
 
 
@@ -590,15 +730,22 @@ document
 this.classList.add("active");
 
 
+
 currentMonth=this.dataset.month;
+
 
 
 loadPlanner();
 
 
+
 };
 
+
 });
+
+
+
 
 
 
