@@ -20,32 +20,23 @@ const months = {
 };
 
 
-
 let currentMonth="MAJ";
 
 
-
 const technicians=[
-
 "PRZEMEK",
 "RAFAŁ",
 "MARCIN",
 "MICHAŁ"
-
 ];
 
 
-
 const colors=[
-
 "przemek",
 "rafal",
 "marcin",
 "michal"
-
 ];
-
-
 
 
 
@@ -58,11 +49,7 @@ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid
 
 
 
-
-
-
 async function loadPlanner(){
-
 
 try{
 
@@ -71,13 +58,12 @@ const response =
 await fetch(csvUrl(currentMonth));
 
 
-
 const text =
 await response.text();
 
 
 
-const rows = text
+const rows=text
 .replace(/\r/g,"")
 .split("\n")
 .filter(x=>x.trim());
@@ -91,18 +77,15 @@ const data=[];
 rows.forEach(row=>{
 
 
-const cols =
-row.split(",")
+const cols=row
+.split(",")
 .map(x=>x.trim());
 
 
 
 if(
-
 cols.length>=6 &&
-
 /^\d{4}-\d{2}-\d{2}$/.test(cols[1])
-
 ){
 
 
@@ -114,19 +97,17 @@ date:cols[1],
 
 tasks:[
 
-cols[2] || "",
-cols[3] || "",
-cols[4] || "",
-cols[5] || ""
+cols[2]||"",
+cols[3]||"",
+cols[4]||"",
+cols[5]||""
 
 ]
-
 
 });
 
 
 }
-
 
 });
 
@@ -142,32 +123,24 @@ currentMonth+" 2026";
 
 
 document.getElementById("info").innerHTML =
-
-
 `
-Planner v0.2.1 |
+Planner v0.3 |
 ${currentMonth} |
-dni robocze: ${data.length} |
-${new Date().toLocaleTimeString()}
+dni: ${data.length}
 `;
 
 
 
 }
 
-catch(error){
+catch(e){
 
-console.error(error);
-
-document.getElementById("info").innerHTML =
-"BŁĄD: "+error.message;
+console.error(e);
 
 }
 
 
 }
-
-
 
 
 
@@ -178,22 +151,20 @@ document.getElementById("info").innerHTML =
 function drawPlanner(data){
 
 
-
 const planner =
 document.getElementById("planner");
-
 
 
 planner.innerHTML="";
 
 
 
-planner.innerHTML +=
+planner.innerHTML+=`
 
-`
 <div class="cell header">
 DATA
 </div>
+
 `;
 
 
@@ -201,9 +172,8 @@ DATA
 technicians.forEach(t=>{
 
 
-planner.innerHTML +=
+planner.innerHTML+=`
 
-`
 <div class="cell header">
 ${t}
 </div>
@@ -219,18 +189,13 @@ ${t}
 data.forEach(row=>{
 
 
-
-const dayName =
-getDayName(row.date);
+const dayName=getDayName(row.date);
 
 
 
 if(
-
 dayName==="Sobota" ||
-
 dayName==="Niedziela"
-
 ){
 
 return;
@@ -240,19 +205,13 @@ return;
 
 
 
+planner.innerHTML+=`
 
-planner.innerHTML +=
-
-`
 <div class="cell date">
 
-<div>
 ${shortDay(dayName)}
-</div>
-
-<div>
+<br>
 ${formatDate(row.date)}
-</div>
 
 </div>
 
@@ -265,32 +224,188 @@ ${formatDate(row.date)}
 row.tasks.forEach((task,index)=>{
 
 
+const card=parseTask(task);
 
-planner.innerHTML +=
 
-`
+
+planner.innerHTML+=`
 
 <div class="cell">
 
+<div class="card ${colors[index]}"
+data-full="${task}">
 
-<div class="card ${colors[index]}">
 
-${formatTask(task)}
-
+<div class="task-type">
+${card.icon} ${card.type}
 </div>
 
+
+<div class="task-main">
+${card.main}
+</div>
+
+
+${card.lines.map(x=>`
+
+<div class="task-line">
+${x}
+</div>
+
+`).join("")}
+
+
+
+</div>
 
 </div>
 
 `;
 
 
+});
+
 
 });
 
 
+}
 
-});
+
+
+
+
+
+
+function parseTask(text){
+
+
+let t=text.trim();
+
+
+
+if(!t){
+
+return {
+
+type:"",
+
+icon:"",
+
+main:"",
+
+lines:[]
+
+};
+
+}
+
+
+
+
+
+if(
+t.toLowerCase().includes("urlop")
+){
+
+return {
+
+type:"URLOP",
+
+icon:"🏖",
+
+main:"",
+
+lines:[
+
+"wolne"
+
+]
+
+};
+
+}
+
+
+
+
+
+if(
+t.toLowerCase().includes("towar")
+){
+
+let clean=t
+.replace(/.*towar/i,"")
+.trim();
+
+
+
+return {
+
+type:"TOWAR",
+
+icon:"📦",
+
+main:extractNumber(t),
+
+lines:[
+
+clean
+
+]
+
+};
+
+
+}
+
+
+
+
+
+
+if(
+t.includes("8-16")
+){
+
+return {
+
+type:"PRACA",
+
+icon:"🕗",
+
+main:"8-16",
+
+lines:[
+
+t.replace("8-16","").trim()
+
+]
+
+};
+
+
+}
+
+
+
+
+
+
+
+return {
+
+
+type:"SERWIS",
+
+icon:"🔧",
+
+main:extractNumber(t),
+
+lines:splitWords(t)
+
+
+};
 
 
 
@@ -304,8 +419,41 @@ ${formatTask(task)}
 
 
 
-function getDayName(date){
+function extractNumber(text){
 
+
+const match=text.match(/\b\d{2,4}\b/);
+
+
+return match ? match[0] : "";
+
+}
+
+
+
+
+
+
+function splitWords(text){
+
+
+let words=text.split(" ");
+
+
+return words
+.filter(x=>x.length>2)
+.slice(1,3);
+
+}
+
+
+
+
+
+
+
+
+function getDayName(date){
 
 
 const days=[
@@ -321,23 +469,18 @@ const days=[
 ];
 
 
+const p=date.split("-");
 
-const parts=date.split("-");
 
-const d =
+return days[
 new Date(
-parts[0],
-parts[1]-1,
-parts[2]
-);
-
-
-
-return days[d.getDay()];
-
+p[0],
+p[1]-1,
+p[2]
+).getDay()
+];
 
 }
-
 
 
 
@@ -347,22 +490,21 @@ return days[d.getDay()];
 function shortDay(day){
 
 
-const short={
+return {
 
 "Poniedziałek":"Pon",
+
 "Wtorek":"Wt",
+
 "Środa":"Śr",
+
 "Czwartek":"Czw",
+
 "Piątek":"Pt"
 
-};
-
-
-return short[day] || day;
-
+}[day];
 
 }
-
 
 
 
@@ -372,78 +514,12 @@ return short[day] || day;
 function formatDate(date){
 
 
-const parts=date.split("-");
+const p=date.split("-");
 
-return `
 
-${parts[2]}.
-${parts[1]}
-
-`;
+return `${p[2]}.${p[1]}`;
 
 }
-
-
-
-
-
-
-
-function formatTask(text){
-
-
-
-let t=text.trim();
-
-
-
-if(!t){
-
-return "";
-
-}
-
-
-
-if(
-t.toLowerCase().includes("urlop")
-){
-
-return "🏖 "+t;
-
-}
-
-
-
-
-if(
-t.toLowerCase().includes("towar")
-){
-
-return "📦 "+t;
-
-}
-
-
-
-
-if(
-t.includes("8-16")
-){
-
-return "🕗 "+t;
-
-}
-
-
-
-
-return t;
-
-
-}
-
-
 
 
 
@@ -459,30 +535,24 @@ document
 btn.onclick=function(){
 
 
-
 document
 .querySelectorAll("#month-bar button")
 .forEach(b=>b.classList.remove("active"));
 
 
-
 this.classList.add("active");
-
 
 
 currentMonth=this.dataset.month;
 
 
-
 loadPlanner();
-
 
 
 };
 
 
 });
-
 
 
 
