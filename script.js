@@ -1,50 +1,82 @@
+/*
+========================================
+MEDICUS Planner v1.0.0
+========================================
+*/
+
+
 const SHEET_ID =
 "1WeR2J62zroTUDGRFnd-Z4bQe196XiP7Kt1Rd_P3SR3M";
 
 
+
 const months = {
 
-"STYCZEŃ":"1901112775",
-"LUTY":"761522376",
-"MARZEC":"427047031",
-"KWIECIEŃ":"1456994350",
-"MAJ":"605689359",
-"CZERWIEC":"1218108803",
-"LIPIEC":"975199346",
-"SIERPIEŃ":"878375304",
-"WRZESIEŃ":"1634226018",
-"PAŹDZIERNIK":"954794309",
-"LISTOPAD":"930192024",
-"GRUDZIEŃ":"1626189679"
+    "STYCZEŃ":"1901112775",
+    "LUTY":"761522376",
+    "MARZEC":"427047031",
+    "KWIECIEŃ":"1456994350",
+    "MAJ":"605689359",
+    "CZERWIEC":"1218108803",
+    "LIPIEC":"975199346",
+    "SIERPIEŃ":"878375304",
+    "WRZESIEŃ":"1634226018",
+    "PAŹDZIERNIK":"954794309",
+    "LISTOPAD":"930192024",
+    "GRUDZIEŃ":"1626189679"
 
 };
 
 
-let currentMonth="MAJ";
 
 
-const technicians=[
-"PRZEMEK",
-"RAFAŁ",
-"MARCIN",
-"MICHAŁ"
+
+let currentMonth =
+localStorage.getItem("plannerMonth") || "MAJ";
+
+
+
+
+
+const technicians = [
+
+    "PRZEMEK",
+    "RAFAŁ",
+    "MARCIN",
+    "MICHAŁ"
+
 ];
 
 
-const colors=[
-"przemek",
-"rafal",
-"marcin",
-"michal"
+
+
+
+const colors = [
+
+    "przemek",
+    "rafal",
+    "marcin",
+    "michal"
+
 ];
+
+
+
+
 
 
 
 function csvUrl(month){
 
-return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${months[month]}`;
+
+    return (
+        `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${months[month]}`
+    );
+
 
 }
+
+
 
 
 
@@ -57,98 +89,117 @@ async function loadPlanner(){
 try{
 
 
-const response =
-await fetch(csvUrl(currentMonth));
-
-
-const text =
-await response.text();
+    const response =
+    await fetch(csvUrl(currentMonth));
 
 
 
-const rows=text
-.replace(/\r/g,"")
-.split("\n")
-.filter(x=>x.trim());
+    const text =
+    await response.text();
 
 
 
-const data=[];
+    const rows =
+    text
+    .replace(/\r/g,"")
+    .split("\n")
+    .filter(row=>row.trim());
 
 
 
-rows.forEach(row=>{
 
 
-const cols=parseCSVLine(row);
+    const data=[];
 
 
 
-if(
 
-cols.length>=6 &&
-
-/^\d{4}-\d{2}-\d{2}$/.test(cols[1])
-
-){
+    rows.forEach(row=>{
 
 
-data.push({
+        const cols =
+        parseCSVLine(row);
 
-date:cols[1],
 
-tasks:[
 
-cols[2] || "",
-cols[3] || "",
-cols[4] || "",
-cols[5] || ""
+        if(
+            cols.length >= 6 &&
+            /^\d{4}-\d{2}-\d{2}$/.test(cols[1])
+        ){
 
-]
 
-});
+            data.push({
+
+                date:cols[1],
+
+                tasks:[
+
+                    cols[2] || "",
+                    cols[3] || "",
+                    cols[4] || "",
+                    cols[5] || ""
+
+                ]
+
+            });
+
+
+        }
+
+
+    });
+
+
+
+
+
+
+
+    drawPlanner(data);
+
+
+
+
+    document
+    .getElementById("current-month")
+    .innerHTML =
+    `${currentMonth} 2026`;
+
+
+
+
+    document
+    .getElementById("info")
+    .innerHTML =
+
+    `MEDICUS Planner v1.0.0 |
+    ${currentMonth} |
+    dni robocze: ${data.length}`;
+
+
+
 
 
 }
-
-
-});
-
-
-
-drawPlanner(data);
-
-
-
-document.getElementById("current-month").innerHTML =
-currentMonth+" 2026";
-
-
-
-document.getElementById("info").innerHTML =
-
-`
-Planner v0.3.2 |
-${currentMonth} |
-dni: ${data.length}
-`;
-
-
-
-}
-
 
 catch(error){
 
-console.error(error);
 
-document.getElementById("info").innerHTML =
-"Błąd: "+error.message;
+    console.error(error);
+
+
+    document
+    .getElementById("info")
+    .innerHTML =
+    "Błąd: " + error.message;
+
 
 }
 
 
+
 }
+
 
 
 
@@ -170,7 +221,11 @@ planner.innerHTML="";
 
 
 
-planner.innerHTML +=`
+
+
+
+
+planner.innerHTML += `
 
 <div class="cell header">
 DATA
@@ -180,18 +235,25 @@ DATA
 
 
 
+
+
 technicians.forEach(t=>{
 
 
-planner.innerHTML +=`
+    planner.innerHTML += `
 
-<div class="cell header">
-${t}
-</div>
+    <div class="cell header">
+        ${t}
+    </div>
 
-`;
+    `;
+
 
 });
+
+
+
+
 
 
 
@@ -200,21 +262,30 @@ ${t}
 data.forEach(row=>{
 
 
-const day=getDayName(row.date);
+const day =
+getDayName(row.date);
+
+
 
 
 
 if(
-day==="Sobota" ||
-day==="Niedziela"
-)
-return;
+    day==="Sobota" ||
+    day==="Niedziela"
+){
+
+    return;
+
+}
 
 
 
 
 
-planner.innerHTML +=`
+
+
+
+planner.innerHTML += `
 
 <div class="cell date">
 
@@ -233,14 +304,21 @@ ${formatDate(row.date)}
 
 
 
+
+
+
 row.tasks.forEach((task,index)=>{
 
 
-const card=parseTask(task);
+
+const card =
+parseTask(task);
 
 
 
-planner.innerHTML +=`
+
+
+planner.innerHTML += `
 
 <div class="cell">
 
@@ -267,6 +345,8 @@ ${card.main}
 
 
 
+
+
 ${card.lines.map(line=>`
 
 <div class="task-line">
@@ -277,16 +357,21 @@ ${line}
 
 
 
+
 </div>
 
 
 </div>
+
 
 `;
 
 
 
+
 });
+
+
 
 
 
@@ -295,218 +380,280 @@ ${line}
 
 
 }
-
-
-
-
-
-
-
+// ========================================
+// PARSER ZADAŃ
+// ========================================
 
 
 function parseTask(text){
 
 
-let t=text.trim();
+    let t = text.trim();
 
 
 
-if(!t){
 
-return {
+    if(!t){
 
-type:"",
-icon:"",
-main:"",
-lines:[]
+        return {
 
-};
+            type:"",
+            icon:"",
+            main:"",
+            lines:[]
+
+        };
+
+    }
+
+
+
+
+
+
+
+    // URLOP
+
+    if(
+        t.toLowerCase().includes("urlop")
+    ){
+
+        return {
+
+            type:"URLOP",
+
+            icon:"🏖",
+
+            main:"Urlop",
+
+            lines:[]
+
+        };
+
+    }
+
+
+
+
+
+
+
+
+
+    // BIURO
+
+    if(
+        /^B\s*:/i.test(t)
+    ){
+
+
+        return {
+
+            type:"BIURO",
+
+            icon:"🏢",
+
+            main:getTime(t),
+
+            lines:[
+
+                removeTime(
+                    t
+                    .replace(/^B\s*:/i,"")
+                )
+
+            ]
+
+        };
+
+
+    }
+
+
+
+
+
+
+
+
+
+    // TOWAR
+
+    if(
+        /TOWAR/i.test(t)
+    ){
+
+
+        return {
+
+
+            type:"TOWAR",
+
+            icon:"📦",
+
+            main:findNumber(t),
+
+            lines:[
+
+                cleanText(t)
+
+            ]
+
+
+        };
+
+
+    }
+
+
+
+
+
+
+
+
+
+    // CZAS PRACY
+
+
+    if(
+
+        /\d{1,2}[-:]\d{2}\s*[-]\s*\d{1,2}/.test(t)
+
+        ||
+
+        /8-16/.test(t)
+
+    ){
+
+
+        return {
+
+
+            type:"CZAS PRACY",
+
+            icon:"🕗",
+
+            main:getTime(t),
+
+            lines:[
+
+                t
+
+            ]
+
+
+        };
+
+
+    }
+
+
+
+
+
+
+
+
+
+    // WYJAZD
+
+
+    if(
+        /\b\d{2,4}\b/.test(t)
+    ){
+
+
+
+        const number =
+        findNumber(t);
+
+
+
+        let rest =
+        t
+        .replace(number,"")
+        .replace(/\(TABLICA WYJAZDY\)/ig,"")
+        .trim();
+
+
+
+
+
+        return {
+
+
+            type:"WYJAZD",
+
+            icon:"🔧",
+
+            main:number,
+
+
+            lines:[
+
+                rest
+
+            ]
+
+
+        };
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+    return {
+
+
+        type:"ZADANIE",
+
+        icon:"📌",
+
+        main:t,
+
+        lines:[]
+
+    };
+
+
 
 }
 
 
 
 
-// URLOP
 
-if(
-t.toLowerCase().includes("urlop")
-){
 
-return {
 
-type:"URLOP",
 
-icon:"🏖",
 
-main:"Urlop",
 
-lines:[]
 
-};
 
-}
-
-
-
-
-
-
-// BIURO
-
-if(/^B\s*:/i.test(t)){
-
-
-return {
-
-type:"BIURO",
-
-icon:"🏢",
-
-main:getTime(t),
-
-lines:[
-
-removeTime(t)
-
-]
-
-};
-
-}
-
-
-
-
-
-
-// TOWAR
-
-if(/TOWAR/i.test(t)){
-
-
-return {
-
-type:"TOWAR",
-
-icon:"📦",
-
-main:findNumber(t),
-
-lines:[
-
-cleanText(t)
-
-]
-
-};
-
-}
-
-
-
-
-
-
-// CZAS PRACY
-
-if(
-
-/\d{1,2}[-:]\d{2}\s*[-]\s*\d{1,2}/.test(t)
-
-||
-
-/8-16/.test(t)
-
-){
-
-
-return {
-
-type:"CZAS PRACY",
-
-icon:"🕗",
-
-main:getTime(t),
-
-lines:[
-
-t
-
-]
-
-};
-
-}
-
-
-
-
-
-
-// WYJAZD
-
-if(/\b\d{2,4}\b/.test(t)){
-
-
-let number=findNumber(t);
-
-
-return {
-
-type:"WYJAZD",
-
-icon:"🔧",
-
-main:number,
-
-lines:
-
-t.replace(number,"")
-.trim()
-.split(" ")
-.slice(0,3)
-
-};
-
-
-}
-
-
-
-
-
-
-return {
-
-
-type:"ZADANIE",
-
-icon:"📌",
-
-main:t,
-
-lines:[]
-
-};
-
-
-}
-
-
-
-
-
+// ========================================
+// POMOCNICZE
+// ========================================
 
 
 
 function findNumber(text){
 
-const match =
-text.match(/\b\d{2,4}\b/);
+
+    const match =
+    text.match(/\b\d{2,4}\b/);
 
 
-return match ? match[0] : "";
+    return match ? match[0] : "";
+
 
 }
 
@@ -518,11 +665,15 @@ return match ? match[0] : "";
 
 function getTime(text){
 
-const match =
-text.match(/\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}(:\d{2})?|\b8-16\b/);
+
+    const match =
+    text.match(
+        /\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}(:\d{2})?|\b8-16\b/
+    );
 
 
-return match ? match[0] : "";
+    return match ? match[0] : "";
+
 
 }
 
@@ -534,7 +685,18 @@ return match ? match[0] : "";
 
 function removeTime(text){
 
-return text.replace(/\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}/,"").trim();
+
+    return text
+    .replace(
+        /\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}/,
+        ""
+    )
+    .replace(
+        /\b8-16\b/,
+        ""
+    )
+    .trim();
+
 
 }
 
@@ -546,10 +708,15 @@ return text.replace(/\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}/,"").trim();
 
 function cleanText(text){
 
-return text
-.replace(/.*TOWAR/i,"")
-.replace(/\(TABLICA WYJAZDY\)/i,"")
-.trim();
+
+    return text
+
+    .replace(/.*TOWAR/i,"")
+
+    .replace(/\(TABLICA WYJAZDY\)/i,"")
+
+    .trim();
+
 
 }
 
@@ -558,35 +725,49 @@ return text
 
 
 
+
+
+
+// ========================================
+// DATY
+// ========================================
 
 
 function getDayName(date){
 
-const p=date.split("-");
+
+    const p =
+    date.split("-");
 
 
-return [
 
-"Niedziela",
-"Poniedziałek",
-"Wtorek",
-"Środa",
-"Czwartek",
-"Piątek",
-"Sobota"
+    return [
 
-][
+        "Niedziela",
+        "Poniedziałek",
+        "Wtorek",
+        "Środa",
+        "Czwartek",
+        "Piątek",
+        "Sobota"
 
-new Date(
-p[0],
-p[1]-1,
-p[2]
-).getDay()
+    ][
 
-];
+
+        new Date(
+
+            p[0],
+            p[1]-1,
+            p[2]
+
+        ).getDay()
+
+
+    ];
 
 
 }
+
 
 
 
@@ -597,21 +778,28 @@ p[2]
 
 function shortDay(day){
 
-return {
 
-"Poniedziałek":"Pon",
+    return {
 
-"Wtorek":"Wt",
 
-"Środa":"Śr",
+        "Poniedziałek":"Pon",
 
-"Czwartek":"Czw",
+        "Wtorek":"Wt",
 
-"Piątek":"Pt"
+        "Środa":"Śr",
 
-}[day];
+        "Czwartek":"Czw",
+
+        "Piątek":"Pt"
+
+
+    }[day] || "";
+
+
 
 }
+
+
 
 
 
@@ -621,11 +809,109 @@ return {
 
 function formatDate(date){
 
-const p=date.split("-");
 
-return `${p[2]}.${p[1]}`;
+    const p =
+    date.split("-");
+
+
+    return `${p[2]}.${p[1]}`;
+
 
 }
+
+
+
+
+
+
+
+
+
+// ========================================
+// CSV
+// ========================================
+
+
+function parseCSVLine(line){
+
+
+
+    const result=[];
+
+    let current="";
+
+    let insideQuotes=false;
+
+
+
+
+
+    for(let i=0;i<line.length;i++){
+
+
+        const char=line[i];
+
+
+
+        if(char === '"'){
+
+
+            insideQuotes =
+            !insideQuotes;
+
+
+            continue;
+
+        }
+
+
+
+
+
+
+        if(
+            char === "," &&
+            !insideQuotes
+        ){
+
+
+            result.push(
+                current.trim()
+            );
+
+
+            current="";
+
+
+        }
+        else{
+
+
+            current += char;
+
+
+        }
+
+
+    }
+
+
+
+
+
+
+    result.push(
+        current.trim()
+    );
+
+
+
+    return result;
+
+
+
+}
+
 
 
 
@@ -636,71 +922,18 @@ return `${p[2]}.${p[1]}`;
 
 function escapeHtml(text){
 
-return text.replace(/"/g,"&quot;");
 
-}
+    return text
 
+    .replace(/&/g,"&amp;")
 
+    .replace(/</g,"&lt;")
 
+    .replace(/>/g,"&gt;")
 
+    .replace(/"/g,"&quot;")
 
-
-
-
-function parseCSVLine(line){
-
-
-const result=[];
-
-let current="";
-
-let insideQuotes=false;
-
-
-
-for(let i=0;i<line.length;i++){
-
-
-const char=line[i];
-
-
-
-if(char === '"'){
-
-insideQuotes=!insideQuotes;
-
-continue;
-
-}
-
-
-
-if(char === "," && !insideQuotes){
-
-
-result.push(current.trim());
-
-current="";
-
-}
-
-else{
-
-
-current+=char;
-
-
-}
-
-
-}
-
-
-
-result.push(current.trim());
-
-
-return result;
+    .replace(/'/g,"&#039;");
 
 
 }
@@ -711,6 +944,11 @@ return result;
 
 
 
+
+
+// ========================================
+// ZMIANA MIESIĄCA
+// ========================================
 
 
 document
@@ -718,28 +956,50 @@ document
 .forEach(btn=>{
 
 
-btn.onclick=function(){
-
-
-document
-.querySelectorAll("#month-bar button")
-.forEach(b=>b.classList.remove("active"));
+    btn.onclick=function(){
 
 
 
-this.classList.add("active");
+        document
+        .querySelectorAll("#month-bar button")
+        .forEach(b=>
+
+            b.classList.remove("active")
+
+        );
 
 
 
-currentMonth=this.dataset.month;
+
+
+        this.classList.add("active");
 
 
 
-loadPlanner();
+
+
+        currentMonth =
+        this.dataset.month;
 
 
 
-};
+
+
+        localStorage.setItem(
+            "plannerMonth",
+            currentMonth
+        );
+
+
+
+
+
+        loadPlanner();
+
+
+
+
+    };
 
 
 });
@@ -748,6 +1008,38 @@ loadPlanner();
 
 
 
+
+
+
+
+// ustawienie aktywnego miesiąca po starcie
+
+
+document
+.querySelectorAll("#month-bar button")
+.forEach(btn=>{
+
+
+    if(
+        btn.dataset.month === currentMonth
+    ){
+
+        btn.classList.add("active");
+
+    }
+
+
+});
+
+
+
+
+
+
+
+
+
+// START
 
 
 loadPlanner();
