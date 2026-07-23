@@ -320,13 +320,11 @@ parseTask(task);
 
 planner.innerHTML += `
 
-<div class="cell"
-     data-row="${row.date}"
-     data-tech="${index}">
+<div class="cell">
 
-<div
+
+<div 
 class="card ${colors[index]}"
-draggable="true"
 data-full="${escapeHtml(task)}">
 
 
@@ -998,75 +996,3 @@ setInterval(()=>{
     loadPlanner();
 
 }, 5 * 60 * 1000);
-// ========================================
-// DRAG & DROP TEST
-// ========================================
-
-let draggedCard = null;
-
-document.addEventListener("dragstart", e => {
-
-    if (!e.target.classList.contains("card")) return;
-
-    draggedCard = e.target;
-    e.target.classList.add("dragging");
-
-});
-
-document.addEventListener("dragend", e => {
-
-    if (!e.target.classList.contains("card")) return;
-
-    e.target.classList.remove("dragging");
-
-    document.querySelectorAll(".cell").forEach(cell => {
-        cell.classList.remove("drag-over");
-    });
-
-});
-
-document.addEventListener("dragover", e => {
-
-    const cell = e.target.closest(".cell");
-
-    if (!cell) return;
-
-    e.preventDefault();
-
-});
-
-document.addEventListener("dragenter", e => {
-
-    const cell = e.target.closest(".cell");
-
-    if (!cell) return;
-
-    cell.classList.add("drag-over");
-
-});
-
-document.addEventListener("dragleave", e => {
-
-    const cell = e.target.closest(".cell");
-
-    if (!cell) return;
-
-    cell.classList.remove("drag-over");
-
-});
-
-document.addEventListener("drop", e => {
-
-    const cell = e.target.closest(".cell");
-
-    if (!cell || !draggedCard) return;
-
-    e.preventDefault();
-
-    cell.classList.remove("drag-over");
-
-    if (cell.querySelector(".card")) return;
-
-    cell.appendChild(draggedCard);
-
-});
