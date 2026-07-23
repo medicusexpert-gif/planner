@@ -387,9 +387,7 @@ ${line}
 
 function parseTask(text){
 
-
     let t = text.trim();
-
 
 
 
@@ -405,6 +403,269 @@ function parseTask(text){
         };
 
     }
+
+
+
+
+
+
+    // =========================
+    // URLOP
+    // =========================
+
+    if(
+        t.toLowerCase().includes("urlop")
+    ){
+
+        return {
+
+            type:"URLOP",
+
+            icon:"🏖",
+
+            main:"Urlop",
+
+            lines:[]
+
+        };
+
+    }
+
+
+
+
+
+
+
+    // =========================
+    // BIURO
+    // =========================
+
+    if(
+        /^B\s*:/i.test(t)
+    ){
+
+        let clean =
+        t.replace(/^B\s*:/i,"").trim();
+
+
+
+        return {
+
+            type:"BIURO",
+
+            icon:"🏢",
+
+            main:getTime(t),
+
+            lines:[
+
+                removeTime(clean)
+
+            ]
+
+        };
+
+    }
+
+
+
+
+
+
+
+
+    // =========================
+    // GODZINA + ZADANIE
+    // np. 12:00 INWENTARYZACJA GdR
+    // =========================
+
+    if(
+        /^\d{1,2}:\d{2}/.test(t)
+    ){
+
+        let time =
+        t.match(/^\d{1,2}:\d{2}/)[0];
+
+
+
+        let description =
+        t.replace(time,"").trim();
+
+
+
+        return {
+
+            type:"ZADANIE",
+
+            icon:"📌",
+
+            main:description,
+
+            lines:[
+
+                "(od " + time + ")"
+
+            ]
+
+        };
+
+    }
+
+
+
+
+
+
+
+
+    // =========================
+    // TOWAR
+    // =========================
+
+    if(
+        /TOWAR/i.test(t)
+    ){
+
+        return {
+
+            type:"TOWAR",
+
+            icon:"📦",
+
+            main:findNumber(t),
+
+            lines:[
+
+                cleanText(t)
+
+            ]
+
+        };
+
+    }
+
+
+
+
+
+
+
+
+    // =========================
+    // CZAS PRACY
+    // np. 8-16
+    // =========================
+
+    if(
+
+        /\d{1,2}[-:]\d{2}\s*[-]\s*\d{1,2}/.test(t)
+
+        ||
+
+        /\b8-16\b/.test(t)
+
+    ){
+
+        return {
+
+            type:"CZAS PRACY",
+
+            icon:"🕗",
+
+            main:getTime(t),
+
+            lines:[
+
+                t
+
+            ]
+
+        };
+
+    }
+
+
+
+
+
+
+
+
+    // =========================
+    // WYJAZD
+    // np. 761 Warszawa
+    // =========================
+
+    if(
+
+        /\b\d{2,4}\b/.test(t)
+
+        &&
+
+        !/^\d{1,2}:\d{2}/.test(t)
+
+    ){
+
+        const number =
+        findNumber(t);
+
+
+
+        let rest =
+        t
+
+        .replace(number,"")
+
+        .replace(/\(TABLICA WYJAZDY\)/ig,"")
+
+        .trim();
+
+
+
+        return {
+
+            type:"WYJAZD",
+
+            icon:"🔧",
+
+            main:number,
+
+            lines:[
+
+                rest
+
+            ]
+
+        };
+
+    }
+
+
+
+
+
+
+
+
+    // =========================
+    // ZWYKŁE ZADANIE
+    // =========================
+
+    return {
+
+        type:"ZADANIE",
+
+        icon:"📌",
+
+        main:t,
+
+        lines:[]
+
+    };
+
+
+}
 
 
 
