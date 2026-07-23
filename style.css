@@ -76,13 +76,13 @@ h1 {
 
 #month-bar {
 
-    display:flex;
+display:grid;
 
-    flex-wrap:wrap;
+grid-template-columns:repeat(6,1fr);
 
-    gap:8px;
+gap:8px;
 
-    padding:10px 40px;
+padding:10px 40px;
 
 }
 
@@ -90,20 +90,21 @@ h1 {
 
 #month-bar button {
 
+background:#1e293b;
 
-    background:#1e293b;
+color:white;
 
-    color:white;
+border:none;
 
-    border:none;
+padding:10px 8px;
 
-    padding:10px 14px;
+border-radius:8px;
 
-    border-radius:8px;
+cursor:pointer;
 
-    cursor:pointer;
+font-size:14px;
 
-    font-size:14px;
+white-space:nowrap;
 
 }
 
