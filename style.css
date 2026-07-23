@@ -1,26 +1,41 @@
+/* =====================================
+   MEDICUS Planner v1.0.0
+   ===================================== */
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+
 body {
 
-margin:0;
+    margin:0;
 
-background:#0f172a;
+    background:#0f172a;
 
-color:white;
+    color:white;
 
-font-family:Arial, sans-serif;
+    font-family:Arial, sans-serif;
 
 }
 
 
 
+
+
+/* HEADER */
+
 header {
 
-display:flex;
+    display:flex;
 
-justify-content:space-between;
+    justify-content:space-between;
 
-align-items:center;
+    align-items:center;
 
-padding:20px 40px;
+    padding:20px 40px;
 
 }
 
@@ -28,9 +43,9 @@ padding:20px 40px;
 
 h1 {
 
-font-size:42px;
+    font-size:42px;
 
-margin:0;
+    margin:0;
 
 }
 
@@ -38,24 +53,30 @@ margin:0;
 
 #status {
 
-font-size:18px;
+    font-size:18px;
 
-color:#94a3b8;
+    color:#94a3b8;
 
 }
 
 
 
 
+
+
+
+/* MIESIĄCE */
+
+
 #month-bar {
 
-display:flex;
+    display:flex;
 
-flex-wrap:wrap;
+    flex-wrap:wrap;
 
-gap:8px;
+    gap:8px;
 
-padding:10px 40px;
+    padding:10px 40px;
 
 }
 
@@ -65,28 +86,30 @@ padding:10px 40px;
 #month-bar button {
 
 
-background:#1e293b;
+    background:#1e293b;
 
-color:white;
+    color:white;
 
-border:none;
+    border:none;
 
-padding:10px 14px;
+    padding:10px 14px;
 
-border-radius:8px;
+    border-radius:8px;
 
-cursor:pointer;
+    cursor:pointer;
 
-font-size:14px;
+    font-size:14px;
 
+    transition:.2s;
 
 }
 
 
 
+
 #month-bar button:hover {
 
-background:#334155;
+    background:#334155;
 
 }
 
@@ -94,48 +117,62 @@ background:#334155;
 
 #month-bar button.active {
 
-background:#2563eb;
+    background:#2563eb;
 
 }
 
 
 
+
+
+
+
+/* TYTUŁ MIESIĄCA */
 
 
 #current-month {
 
-padding-left:40px;
+    padding-left:40px;
 
-font-size:30px;
+    font-size:30px;
+
+    margin:20px 0;
 
 }
 
 
 
 
+
+
+
+
+/* TABLICA */
 
 
 #planner {
 
 
-display:grid;
+    display:grid;
 
 
-grid-template-columns:
+    grid-template-columns:
 
-130px repeat(4,1fr);
-
-
-
-gap:12px;
+    130px repeat(4,1fr);
 
 
 
-padding:20px 40px;
+    gap:12px;
+
+
+
+    padding:20px 40px;
 
 
 
 }
+
+
 
 
 
@@ -143,61 +180,72 @@ padding:20px 40px;
 .cell {
 
 
-background:#1e293b;
+    background:#1e293b;
 
 
-border-radius:12px;
+    border-radius:12px;
 
 
-padding:10px;
+    padding:10px;
 
 
 
-min-height:90px;
+    min-height:90px;
+
+
+    overflow:hidden;
 
 
 }
+
+
+
+
 
 
 
 .header {
 
 
-background:#334155;
+    background:#334155;
 
 
-font-size:22px;
+    font-size:22px;
 
 
-font-weight:bold;
+    font-weight:bold;
 
 
-text-align:center;
+    text-align:center;
 
 
 }
+
+
+
+
 
 
 
 .date {
 
 
-display:flex;
+    display:flex;
 
 
-flex-direction:column;
+    flex-direction:column;
 
 
-justify-content:center;
+    justify-content:center;
 
 
-align-items:center;
+    align-items:center;
 
 
-font-size:20px;
+    font-size:20px;
 
 
-font-weight:bold;
+    font-weight:bold;
 
 
 }
@@ -205,60 +253,59 @@ font-weight:bold;
 
 
 
-/*
-kafelki
-*/
+
+
+
+/* KAFELKI */
 
 
 .card {
 
 
-height:100%;
+    height:100%;
 
 
-border-radius:10px;
+    border-radius:10px;
 
 
-padding:12px;
-
-
-
-font-size:18px;
-
-
-line-height:1.35;
+    padding:12px;
 
 
 
-cursor:pointer;
+    font-size:18px;
+
+
+    line-height:1.35;
 
 
 
-overflow:hidden;
+    cursor:pointer;
 
 
 
-position:relative;
+    overflow:hidden;
 
+
+
+    position:relative;
 
 
 }
+
 
 
 
 .card:hover {
 
 
-overflow:visible;
+    overflow:visible;
 
 
-z-index:10;
-
-
-box-shadow:0 0 20px rgba(0,0,0,.5);
+    z-index:10;
 
 
 }
+
 
 
 
@@ -267,38 +314,45 @@ box-shadow:0 0 20px rgba(0,0,0,.5);
 .card:hover::after {
 
 
-content:attr(data-full);
+    content:attr(data-full);
 
 
 
-position:absolute;
+    position:absolute;
 
 
 
-left:0;
+    left:0;
 
-top:100%;
-
-
-
-background:#020617;
-
-
-padding:12px;
-
-
-border-radius:8px;
-
-
-width:300px;
-
-
-font-size:16px;
+    top:100%;
 
 
 
-z-index:20;
+    background:#020617;
 
+
+
+    padding:12px;
+
+
+
+    border-radius:8px;
+
+
+
+    width:320px;
+
+
+
+    font-size:16px;
+
+
+
+    line-height:1.4;
+
+
+
+    z-index:20;
 
 
 }
@@ -306,11 +360,15 @@ z-index:20;
 
 
 
+
+
+
+/* TECHNICY */
+
+
 .przemek {
 
-
-background:#2563eb;
-
+    background:#2563eb;
 
 }
 
@@ -318,9 +376,7 @@ background:#2563eb;
 
 .rafal {
 
-
-background:#7c3aed;
-
+    background:#7c3aed;
 
 }
 
@@ -328,9 +384,7 @@ background:#7c3aed;
 
 .marcin {
 
-
-background:#ca8a04;
-
+    background:#ca8a04;
 
 }
 
@@ -338,11 +392,54 @@ background:#ca8a04;
 
 .michal {
 
+    background:#db2777;
 
-background:#db2777;
+}
+
+
+
+
+
+
+
+/* ELEMENTY TEKSTOWE */
+
+
+.task-type {
+
+
+    font-size:14px;
+
+    opacity:.9;
+
+    margin-bottom:6px;
 
 
 }
+
+
+
+
+.task-main {
+
+
+    font-size:24px;
+
+    font-weight:bold;
+
+
+}
+
+
+
+.task-line {
+
+
+    margin-top:5px;
+
+}
+
+
 
 
 
@@ -351,20 +448,70 @@ background:#db2777;
 .empty {
 
 
-opacity:.2;
+    opacity:.2;
 
 
 }
 
 
 
+
+
+
+/* STOPKA */
+
+
 footer {
 
 
-padding:20px 40px;
+    padding:20px 40px;
 
 
-color:#94a3b8;
+    color:#94a3b8;
+
+
+}
+
+
+
+
+
+
+
+/* TELEWIZOR / DUŻY EKRAN */
+
+
+@media(max-width:1200px){
+
+
+    #planner {
+
+
+        grid-template-columns:
+
+        110px repeat(4,1fr);
+
+
+        padding:20px;
+
+
+    }
+
+
+    .cell {
+
+
+        min-height:80px;
+
+    }
+
+
+    .card {
+
+
+        font-size:16px;
+
+    }
 
 
 }
