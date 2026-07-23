@@ -390,22 +390,16 @@ function parseTask(text){
     let t = text.trim();
 
 
-
     if(!t){
 
         return {
-
             type:"",
             icon:"",
             main:"",
             lines:[]
-
         };
 
     }
-
-
-
 
 
 
@@ -413,26 +407,18 @@ function parseTask(text){
     // URLOP
     // =========================
 
-    if(
-        t.toLowerCase().includes("urlop")
-    ){
+    if(t.toLowerCase().includes("urlop")){
 
         return {
 
             type:"URLOP",
-
             icon:"🏖",
-
             main:"Urlop",
-
             lines:[]
 
         };
 
     }
-
-
-
 
 
 
@@ -441,23 +427,17 @@ function parseTask(text){
     // BIURO
     // =========================
 
-    if(
-        /^B\s*:/i.test(t)
-    ){
+    if(/^B\s*:/i.test(t)){
 
         let clean =
         t.replace(/^B\s*:/i,"").trim();
 
 
-
         return {
 
             type:"BIURO",
-
             icon:"🏢",
-
-            main:getTime(t),
-
+            main:getTime(clean),
             lines:[
 
                 removeTime(clean)
@@ -472,48 +452,34 @@ function parseTask(text){
 
 
 
-
-
-
     // =========================
-    // GODZINA + ZADANIE
-    // np. 12:00 INWENTARYZACJA GdR
+    // GODZINA NA POCZĄTKU
+    // np. 12:00 INWENTARYZACJA
     // =========================
 
-    if(
-        /^\d{1,2}:\d{2}/.test(t)
-    ){
-
-        let time =
-        t.match(/^\d{1,2}:\d{2}/)[0];
+    let timeMatch =
+    t.match(/^(\d{1,2}:\d{2})\s*(.*)$/);
 
 
-
-        let description =
-        t.replace(time,"").trim();
-
-
+    if(timeMatch){
 
         return {
 
             type:"ZADANIE",
-
             icon:"📌",
 
-            main:description,
+            main:
+            timeMatch[2],
 
             lines:[
 
-                "(od " + time + ")"
+                "(od " + timeMatch[1] + ")"
 
             ]
 
         };
 
     }
-
-
-
 
 
 
@@ -523,30 +489,23 @@ function parseTask(text){
     // TOWAR
     // =========================
 
-    if(
-        /TOWAR/i.test(t)
-    ){
+    if(/TOWAR/i.test(t)){
+
 
         return {
 
             type:"TOWAR",
-
             icon:"📦",
 
-            main:findNumber(t),
+            main:t
+            .replace(/TOWAR/i,"")
+            .trim(),
 
-            lines:[
-
-                cleanText(t)
-
-            ]
+            lines:[]
 
         };
 
     }
-
-
-
 
 
 
@@ -558,35 +517,21 @@ function parseTask(text){
     // =========================
 
     if(
-
-        /\d{1,2}[-:]\d{2}\s*[-]\s*\d{1,2}/.test(t)
-
-        ||
-
-        /\b8-16\b/.test(t)
-
+        /\b\d{1,2}[-]\d{1,2}\b/.test(t)
     ){
 
         return {
 
             type:"CZAS PRACY",
-
             icon:"🕗",
 
-            main:getTime(t),
+            main:t,
 
-            lines:[
-
-                t
-
-            ]
+            lines:[]
 
         };
 
     }
-
-
-
 
 
 
@@ -594,55 +539,25 @@ function parseTask(text){
 
     // =========================
     // WYJAZD
-    // np. 761 Warszawa
+    // NIE WYCIĄGAMY NUMERÓW
     // =========================
 
     if(
-
         /\b\d{2,4}\b/.test(t)
-
-        &&
-
-        !/^\d{1,2}:\d{2}/.test(t)
-
     ){
-
-        const number =
-        findNumber(t);
-
-
-
-        let rest =
-        t
-
-        .replace(number,"")
-
-        .replace(/\(TABLICA WYJAZDY\)/ig,"")
-
-        .trim();
-
-
 
         return {
 
             type:"WYJAZD",
-
             icon:"🔧",
 
-            main:number,
+            main:t,
 
-            lines:[
-
-                rest
-
-            ]
+            lines:[]
 
         };
 
     }
-
-
-
 
 
 
@@ -655,7 +570,6 @@ function parseTask(text){
     return {
 
         type:"ZADANIE",
-
         icon:"📌",
 
         main:t,
@@ -666,7 +580,6 @@ function parseTask(text){
 
 
 }
-
 
 
 // ========================================
