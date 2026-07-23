@@ -2,7 +2,6 @@ const SHEET_ID =
 "1WeR2J62zroTUDGRFnd-Z4bQe196XiP7Kt1Rd_P3SR3M";
 
 
-
 const months = {
 
 "STYCZEŃ":"1901112775",
@@ -27,18 +26,23 @@ let currentMonth="MAJ";
 
 
 const technicians=[
+
 "PRZEMEK",
 "RAFAŁ",
 "MARCIN",
 "MICHAŁ"
+
 ];
 
 
+
 const colors=[
+
 "przemek",
 "rafal",
 "marcin",
 "michal"
+
 ];
 
 
@@ -47,11 +51,11 @@ const colors=[
 
 function csvUrl(month){
 
-
 return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${months[month]}`;
 
-
 }
+
+
 
 
 
@@ -73,7 +77,7 @@ await response.text();
 
 
 
-const rows=text
+const rows = text
 .replace(/\r/g,"")
 .split("\n")
 .filter(x=>x.trim());
@@ -94,8 +98,11 @@ row.split(",")
 
 
 if(
+
 cols.length>=6 &&
+
 /^\d{4}-\d{2}-\d{2}$/.test(cols[1])
+
 ){
 
 
@@ -107,12 +114,13 @@ date:cols[1],
 
 tasks:[
 
-cols[2]||"",
-cols[3]||"",
-cols[4]||"",
-cols[5]||""
+cols[2] || "",
+cols[3] || "",
+cols[4] || "",
+cols[5] || ""
 
 ]
+
 
 });
 
@@ -135,10 +143,11 @@ currentMonth+" 2026";
 
 document.getElementById("info").innerHTML =
 
+
 `
-Planner v0.2 |
+Planner v0.2.1 |
 ${currentMonth} |
-dni: ${data.length} |
+dni robocze: ${data.length} |
 ${new Date().toLocaleTimeString()}
 `;
 
@@ -146,13 +155,19 @@ ${new Date().toLocaleTimeString()}
 
 }
 
-catch(e){
+catch(error){
 
-console.error(e);
+console.error(error);
+
+document.getElementById("info").innerHTML =
+"BŁĄD: "+error.message;
 
 }
 
+
 }
+
+
 
 
 
@@ -163,8 +178,10 @@ console.error(e);
 function drawPlanner(data){
 
 
+
 const planner =
 document.getElementById("planner");
+
 
 
 planner.innerHTML="";
@@ -198,7 +215,30 @@ ${t}
 
 
 
+
 data.forEach(row=>{
+
+
+
+const dayName =
+getDayName(row.date);
+
+
+
+if(
+
+dayName==="Sobota" ||
+
+dayName==="Niedziela"
+
+){
+
+return;
+
+}
+
+
+
 
 
 planner.innerHTML +=
@@ -206,37 +246,119 @@ planner.innerHTML +=
 `
 <div class="cell date">
 
+<div>
+${shortDay(dayName)}
+</div>
+
+<div>
 ${formatDate(row.date)}
+</div>
 
 </div>
 
 `;
+
+
 
 
 
 row.tasks.forEach((task,index)=>{
 
 
+
 planner.innerHTML +=
 
 `
+
 <div class="cell">
+
 
 <div class="card ${colors[index]}">
 
-${task}
+${formatTask(task)}
 
 </div>
+
 
 </div>
 
 `;
 
 
+
 });
 
 
+
 });
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function getDayName(date){
+
+
+
+const days=[
+
+"Niedziela",
+"Poniedziałek",
+"Wtorek",
+"Środa",
+"Czwartek",
+"Piątek",
+"Sobota"
+
+];
+
+
+
+const parts=date.split("-");
+
+const d =
+new Date(
+parts[0],
+parts[1]-1,
+parts[2]
+);
+
+
+
+return days[d.getDay()];
+
+
+}
+
+
+
+
+
+
+
+function shortDay(day){
+
+
+const short={
+
+"Poniedziałek":"Pon",
+"Wtorek":"Wt",
+"Środa":"Śr",
+"Czwartek":"Czw",
+"Piątek":"Pt"
+
+};
+
+
+return short[day] || day;
 
 
 }
@@ -250,15 +372,79 @@ ${task}
 function formatDate(date){
 
 
-const d=new Date(date);
-
+const parts=date.split("-");
 
 return `
-${String(d.getDate()).padStart(2,"0")}.
-${String(d.getMonth()+1).padStart(2,"0")}
+
+${parts[2]}.
+${parts[1]}
+
 `;
 
 }
+
+
+
+
+
+
+
+function formatTask(text){
+
+
+
+let t=text.trim();
+
+
+
+if(!t){
+
+return "";
+
+}
+
+
+
+if(
+t.toLowerCase().includes("urlop")
+){
+
+return "🏖 "+t;
+
+}
+
+
+
+
+if(
+t.toLowerCase().includes("towar")
+){
+
+return "📦 "+t;
+
+}
+
+
+
+
+if(
+t.includes("8-16")
+){
+
+return "🕗 "+t;
+
+}
+
+
+
+
+return t;
+
+
+}
+
+
+
 
 
 
@@ -271,6 +457,7 @@ document
 
 
 btn.onclick=function(){
+
 
 
 document
@@ -286,13 +473,17 @@ this.classList.add("active");
 currentMonth=this.dataset.month;
 
 
+
 loadPlanner();
+
 
 
 };
 
 
 });
+
+
 
 
 
