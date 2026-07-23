@@ -115,6 +115,7 @@ currentMonth+" 2026";
 
 
 document.getElementById("info").innerHTML =
+
 `
 Planner v0.3.1 |
 ${currentMonth} |
@@ -272,13 +273,39 @@ let t=text.trim();
 if(!t){
 
 return {
+
 type:"",
 icon:"",
 main:"",
 lines:[]
+
 };
 
 }
+
+
+
+// URLOP
+
+if(
+t.toLowerCase().includes("urlop")
+){
+
+return {
+
+type:"URLOP",
+
+icon:"🏖",
+
+main:"Urlop",
+
+lines:[]
+
+};
+
+}
+
+
 
 
 
@@ -297,7 +324,9 @@ icon:"🏢",
 main:getTime(t),
 
 lines:[
+
 removeTime(t)
+
 ]
 
 };
@@ -502,14 +531,19 @@ function shortDay(day){
 return {
 
 "Poniedziałek":"Pon",
+
 "Wtorek":"Wt",
+
 "Środa":"Śr",
+
 "Czwartek":"Czw",
+
 "Piątek":"Pt"
 
 }[day];
 
 }
+
 
 
 
@@ -529,8 +563,7 @@ return `${p[2]}.${p[1]}`;
 
 function escapeHtml(text){
 
-return text
-.replace(/"/g,"&quot;");
+return text.replace(/"/g,"&quot;");
 
 }
 
