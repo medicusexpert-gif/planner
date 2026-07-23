@@ -172,7 +172,7 @@ try{
     .getElementById("info")
     .innerHTML =
 
-    `MEDICUS Planner v1.0.0 |
+    `MEDICUS Planner v1.0.5 |
     ${currentMonth} |
     dni robocze: ${data.length}`;
 
