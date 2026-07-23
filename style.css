@@ -1,10 +1,13 @@
-/* =====================================
-   MEDICUS Planner v1.0.0
-   ===================================== */
+/*
+========================================
+MEDICUS Planner v1.0.1
+TV + TABLET + MOBILE
+========================================
+*/
 
 
 * {
-    box-sizing: border-box;
+    box-sizing:border-box;
 }
 
 
@@ -25,7 +28,9 @@ body {
 
 
 
+
 /* HEADER */
+
 
 header {
 
@@ -65,6 +70,7 @@ h1 {
 
 
 
+
 /* MIESIĄCE */
 
 
@@ -79,7 +85,6 @@ h1 {
     padding:10px 40px;
 
 }
-
 
 
 
@@ -100,10 +105,7 @@ h1 {
 
     font-size:14px;
 
-    transition:.2s;
-
 }
-
 
 
 
@@ -127,9 +129,6 @@ h1 {
 
 
 
-/* TYTUŁ MIESIĄCA */
-
-
 #current-month {
 
     padding-left:40px;
@@ -147,7 +146,22 @@ h1 {
 
 
 
-/* TABLICA */
+
+/*
+========================================
+TABLICA
+========================================
+*/
+
+
+#planner-wrapper {
+
+    overflow-x:auto;
+
+}
+
+
+
 
 
 #planner {
@@ -158,7 +172,7 @@ h1 {
 
     grid-template-columns:
 
-    130px repeat(4,1fr);
+    130px repeat(4,260px);
 
 
 
@@ -170,7 +184,11 @@ h1 {
 
 
 
+    min-width:1200px;
+
+
 }
+
 
 
 
@@ -203,7 +221,6 @@ h1 {
 
 
 
-
 .header {
 
 
@@ -220,6 +237,7 @@ h1 {
 
 
 }
+
 
 
 
@@ -256,7 +274,12 @@ h1 {
 
 
 
-/* KAFELKI */
+
+/*
+========================================
+KAFELKI
+========================================
+*/
 
 
 .card {
@@ -295,6 +318,7 @@ h1 {
 
 
 
+
 .card:hover {
 
 
@@ -305,6 +329,7 @@ h1 {
 
 
 }
+
 
 
 
@@ -348,10 +373,6 @@ h1 {
 
 
 
-    line-height:1.4;
-
-
-
     z-index:20;
 
 
@@ -363,7 +384,49 @@ h1 {
 
 
 
-/* TECHNICY */
+.task-type {
+
+
+    font-size:14px;
+
+    opacity:.9;
+
+    margin-bottom:6px;
+
+}
+
+
+
+
+.task-main {
+
+
+    font-size:24px;
+
+    font-weight:bold;
+
+}
+
+
+
+.task-line {
+
+
+    margin-top:5px;
+
+}
+
+
+
+
+
+
+
+/*
+========================================
+KOLORY TECHNIKÓW
+========================================
+*/
 
 
 .przemek {
@@ -402,64 +465,6 @@ h1 {
 
 
 
-/* ELEMENTY TEKSTOWE */
-
-
-.task-type {
-
-
-    font-size:14px;
-
-    opacity:.9;
-
-    margin-bottom:6px;
-
-
-}
-
-
-
-
-.task-main {
-
-
-    font-size:24px;
-
-    font-weight:bold;
-
-
-}
-
-
-
-.task-line {
-
-
-    margin-top:5px;
-
-}
-
-
-
-
-
-
-
-.empty {
-
-
-    opacity:.2;
-
-
-}
-
-
-
-
-
-
-/* STOPKA */
-
 
 footer {
 
@@ -478,18 +483,64 @@ footer {
 
 
 
-/* TELEWIZOR / DUŻY EKRAN */
+
+/*
+========================================
+TABLET
+========================================
+*/
 
 
-@media(max-width:1200px){
+@media(max-width:900px){
+
+
+    header {
+
+
+        padding:15px 20px;
+
+
+    }
+
+
+
+    h1 {
+
+
+        font-size:32px;
+
+
+    }
+
+
+
+
+    #month-bar {
+
+
+        padding:10px 20px;
+
+
+    }
+
+
+
+
+    #current-month {
+
+
+        padding-left:20px;
+
+
+        font-size:26px;
+
+
+    }
+
+
 
 
     #planner {
-
-
-        grid-template-columns:
-
-        110px repeat(4,1fr);
 
 
         padding:20px;
@@ -498,12 +549,176 @@ footer {
     }
 
 
+}
+
+
+
+
+
+
+
+
+
+/*
+========================================
+TELEFON
+========================================
+*/
+
+
+@media(max-width:600px){
+
+
+
+    header {
+
+
+        padding:15px;
+
+
+    }
+
+
+
+
+    h1 {
+
+
+        font-size:26px;
+
+
+    }
+
+
+
+
+    #status {
+
+
+        font-size:14px;
+
+
+    }
+
+
+
+
+
+    #month-bar {
+
+
+        padding:10px;
+
+        gap:6px;
+
+
+    }
+
+
+
+
+
+    #month-bar button {
+
+
+        padding:8px 10px;
+
+
+        font-size:12px;
+
+
+    }
+
+
+
+
+
+
+    #current-month {
+
+
+        padding-left:15px;
+
+
+        font-size:22px;
+
+
+    }
+
+
+
+
+
+    #planner {
+
+
+        grid-template-columns:
+
+        100px repeat(4,220px);
+
+
+
+        gap:8px;
+
+
+
+        padding:15px;
+
+
+
+        min-width:980px;
+
+
+    }
+
+
+
+
+
+
+
     .cell {
 
 
-        min-height:80px;
+        min-height:100px;
+
+
+        padding:8px;
+
 
     }
+
+
+
+
+
+
+
+    .header {
+
+
+        font-size:18px;
+
+
+    }
+
+
+
+
+
+
+    .date {
+
+
+        font-size:16px;
+
+
+    }
+
+
+
+
+
 
 
     .card {
@@ -511,7 +726,22 @@ footer {
 
         font-size:16px;
 
+
     }
+
+
+
+
+
+
+    .task-main {
+
+
+        font-size:22px;
+
+
+    }
+
 
 
 }
