@@ -505,7 +505,34 @@ function parseTask(text){
 
     }
 
+// ZADANIE Z GODZINĄ np. 12:00 INWENTARYZACJA
 
+if(
+    /^\d{1,2}:\d{2}/.test(t)
+){
+
+    let time =
+    t.match(/^\d{1,2}:\d{2}/)[0];
+
+
+    return {
+
+        type:"ZADANIE",
+
+        icon:"📌",
+
+        main:
+        t.replace(time,"").trim(),
+
+        lines:[
+
+            "(od " + time + ")"
+
+        ]
+
+    };
+
+}
 
 
 
@@ -558,55 +585,23 @@ function parseTask(text){
 
     // WYJAZD
 
-
-    if(
-        /\b\d{2,4}\b/.test(t)
-    ){
-
-
-
-        const number =
-        findNumber(t);
+// najpierw sprawdzamy czy liczba nie jest godziną np. 12:00
+if(
+    /\b\d{2,4}\b/.test(t) &&
+    !/^\d{1,2}:\d{2}/.test(t)
+){
 
 
-
-        let rest =
-        t
-        .replace(number,"")
-        .replace(/\(TABLICA WYJAZDY\)/ig,"")
-        .trim();
+    const number =
+    findNumber(t);
 
 
 
-
-
-        return {
-
-
-            type:"WYJAZD",
-
-            icon:"🔧",
-
-            main:number,
-
-
-            lines:[
-
-                rest
-
-            ]
-
-
-        };
-
-
-
-    }
-
-
-
-
-
+    let rest =
+    t
+    .replace(number,"")
+    .replace(/\(TABLICA WYJAZDY\)/ig,"")
+    .trim();
 
 
 
@@ -614,25 +609,24 @@ function parseTask(text){
     return {
 
 
-        type:"ZADANIE",
+        type:"WYJAZD",
 
-        icon:"📌",
+        icon:"🔧",
 
-        main:t,
+        main:number,
 
-        lines:[]
+
+        lines:[
+
+            rest
+
+        ]
+
 
     };
 
 
-
 }
-
-
-
-
-
-
 
 
 
