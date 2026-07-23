@@ -49,10 +49,8 @@ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid
 
 
 
+
 async function loadPlanner(){
-
-try{
-
 
 const response =
 await fetch(csvUrl(currentMonth));
@@ -69,7 +67,6 @@ const rows=text
 .filter(x=>x.trim());
 
 
-
 const data=[];
 
 
@@ -77,10 +74,7 @@ const data=[];
 rows.forEach(row=>{
 
 
-const cols=row
-.split(",")
-.map(x=>x.trim());
-
+const cols=row.split(",");
 
 
 if(
@@ -90,8 +84,6 @@ cols.length>=6 &&
 
 
 data.push({
-
-day:cols[0],
 
 date:cols[1],
 
@@ -109,6 +101,7 @@ cols[5]||""
 
 }
 
+
 });
 
 
@@ -121,10 +114,9 @@ document.getElementById("current-month").innerHTML =
 currentMonth+" 2026";
 
 
-
 document.getElementById("info").innerHTML =
 `
-Planner v0.3 |
+Planner v0.3.1 |
 ${currentMonth} |
 dni: ${data.length}
 `;
@@ -133,14 +125,6 @@ dni: ${data.length}
 
 }
 
-catch(e){
-
-console.error(e);
-
-}
-
-
-}
 
 
 
@@ -151,9 +135,7 @@ console.error(e);
 function drawPlanner(data){
 
 
-const planner =
-document.getElementById("planner");
-
+const planner=document.getElementById("planner");
 
 planner.innerHTML="";
 
@@ -189,18 +171,15 @@ ${t}
 data.forEach(row=>{
 
 
-const dayName=getDayName(row.date);
+const day=getDayName(row.date);
 
 
 
 if(
-dayName==="Sobota" ||
-dayName==="Niedziela"
-){
-
+day==="Sobota" ||
+day==="Niedziela"
+)
 return;
-
-}
 
 
 
@@ -209,7 +188,7 @@ planner.innerHTML+=`
 
 <div class="cell date">
 
-${shortDay(dayName)}
+${shortDay(day)}
 <br>
 ${formatDate(row.date)}
 
@@ -232,8 +211,9 @@ planner.innerHTML+=`
 
 <div class="cell">
 
-<div class="card ${colors[index]}"
-data-full="${task}">
+<div 
+class="card ${colors[index]}"
+data-full="${escapeHtml(task)}">
 
 
 <div class="task-type">
@@ -242,18 +222,19 @@ ${card.icon} ${card.type}
 
 
 <div class="task-main">
+
 ${card.main}
+
 </div>
 
 
-${card.lines.map(x=>`
+${card.lines.map(line=>`
 
 <div class="task-line">
-${x}
+${line}
 </div>
 
 `).join("")}
-
 
 
 </div>
@@ -263,13 +244,17 @@ ${x}
 `;
 
 
+
 });
 
 
+
 });
+
 
 
 }
+
 
 
 
@@ -287,15 +272,10 @@ let t=text.trim();
 if(!t){
 
 return {
-
 type:"",
-
 icon:"",
-
 main:"",
-
 lines:[]
-
 };
 
 }
@@ -303,23 +283,21 @@ lines:[]
 
 
 
+// BIURO
 
-if(
-t.toLowerCase().includes("urlop")
-){
+if(/^B\s*:/i.test(t)){
+
 
 return {
 
-type:"URLOP",
+type:"BIURO",
 
-icon:"🏖",
+icon:"🏢",
 
-main:"",
+main:getTime(t),
 
 lines:[
-
-"wolne"
-
+removeTime(t)
 ]
 
 };
@@ -330,14 +308,9 @@ lines:[
 
 
 
-if(
-t.toLowerCase().includes("towar")
-){
+// TOWAR
 
-let clean=t
-.replace(/.*towar/i,"")
-.trim();
-
+if(/TOWAR/i.test(t)){
 
 
 return {
@@ -346,16 +319,15 @@ type:"TOWAR",
 
 icon:"📦",
 
-main:extractNumber(t),
+main:findNumber(t),
 
 lines:[
 
-clean
+cleanText(t)
 
 ]
 
 };
-
 
 }
 
@@ -364,29 +336,65 @@ clean
 
 
 
+// CZAS
+
 if(
-t.includes("8-16")
+/\d{1,2}[:.-]\d{2}\s*[-]\s*\d{1,2}/.test(t)
+||
+/8-16/.test(t)
 ){
+
 
 return {
 
-type:"PRACA",
+type:"CZAS PRACY",
 
 icon:"🕗",
 
-main:"8-16",
+main:getTime(t),
 
 lines:[
 
-t.replace("8-16","").trim()
+cleanText(t)
 
 ]
 
 };
 
-
 }
 
+
+
+
+
+
+
+// WYJAZD
+
+if(/\b\d{2,4}\b/.test(t)){
+
+
+let parts=t.split(" ");
+
+
+return {
+
+type:"WYJAZD",
+
+icon:"🔧",
+
+main:findNumber(t),
+
+lines:
+
+parts
+.filter(x=>x!==findNumber(t))
+.slice(0,3)
+
+};
+
+
+}
 
 
 
@@ -395,20 +403,17 @@ t.replace("8-16","").trim()
 
 return {
 
+type:"ZADANIE",
 
-type:"SERWIS",
+icon:"📌",
 
-icon:"🔧",
+main:t.substring(0,25),
 
-main:extractNumber(t),
-
-lines:splitWords(t)
-
+lines:[]
 
 };
 
 
-
 }
 
 
@@ -417,36 +422,45 @@ lines:splitWords(t)
 
 
 
+function findNumber(text){
 
+const m=text.match(/\b\d{2,4}\b/);
 
-function extractNumber(text){
-
-
-const match=text.match(/\b\d{2,4}\b/);
-
-
-return match ? match[0] : "";
+return m ? m[0] : "";
 
 }
 
 
 
 
+function getTime(text){
 
+const m=text.match(/\d{1,2}[-:]\d{1,2}|\d{1,2}:\d{2}[-]\d{1,2}:\d{2}/);
 
-function splitWords(text){
-
-
-let words=text.split(" ");
-
-
-return words
-.filter(x=>x.length>2)
-.slice(1,3);
+return m ? m[0] : "";
 
 }
 
 
+
+
+function removeTime(text){
+
+return text.replace(/\d{1,2}[-:]\d{1,2}/,"").trim();
+
+}
+
+
+
+
+function cleanText(text){
+
+return text
+.replace(/.*TOWAR/i,"")
+.replace(/\(TABLICA WYJAZDY\)/i,"")
+.trim();
+
+}
 
 
 
@@ -455,8 +469,10 @@ return words
 
 function getDayName(date){
 
+const p=date.split("-");
 
-const days=[
+
+return [
 
 "Niedziela",
 "Poniedziałek",
@@ -466,13 +482,7 @@ const days=[
 "Piątek",
 "Sobota"
 
-];
-
-
-const p=date.split("-");
-
-
-return days[
+][
 new Date(
 p[0],
 p[1]-1,
@@ -480,8 +490,8 @@ p[2]
 ).getDay()
 ];
 
-}
 
+}
 
 
 
@@ -489,17 +499,12 @@ p[2]
 
 function shortDay(day){
 
-
 return {
 
 "Poniedziałek":"Pon",
-
 "Wtorek":"Wt",
-
 "Środa":"Śr",
-
 "Czwartek":"Czw",
-
 "Piątek":"Pt"
 
 }[day];
@@ -510,14 +515,22 @@ return {
 
 
 
-
 function formatDate(date){
-
 
 const p=date.split("-");
 
-
 return `${p[2]}.${p[1]}`;
+
+}
+
+
+
+
+
+function escapeHtml(text){
+
+return text
+.replace(/"/g,"&quot;");
 
 }
 
@@ -540,6 +553,7 @@ document
 .forEach(b=>b.classList.remove("active"));
 
 
+
 this.classList.add("active");
 
 
@@ -551,9 +565,7 @@ loadPlanner();
 
 };
 
-
 });
-
 
 
 
