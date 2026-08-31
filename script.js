@@ -21,7 +21,7 @@ OTRZYMANY PO WDROŻENIU GOOGLE APPS SCRIPT
 */
 
 const API_URL =
-"https://script.google.com/macros/s/TUTAJ_WKLEJ_ID_WDROZENIA/exec";
+"https://script.google.com/macros/s/AKfycbytRF53HvJAylZXgdUlLOB8gEwFKtFGWMexLqMjdIORNjf8_R3Edx7tMHPu4SgCLy0wcg/exec";
 
 
 /*
