@@ -1,7 +1,7 @@
 /*
 ==================================================
 MEDICUS PLANNER
-DRAG & DROP + TOUCH
+DRAG & DROP + TOUCH + POTWIERDZENIE
 ==================================================
 */
 
@@ -13,11 +13,6 @@ const SHEET_ID =
 ==================================================
 GOOGLE APPS SCRIPT
 ==================================================
-*/
-
-/*
-W TYM MIEJSCU WKLEJ ADRES /exec
-OTRZYMANY PO WDROŻENIU GOOGLE APPS SCRIPT
 */
 
 const API_URL =
@@ -164,10 +159,6 @@ async function loadPlanner(){
 
                 data.push({
 
-                    /*
-                    rzeczywisty numer wiersza
-                    w Google Sheets
-                    */
                     sheetRow:
                     rowIndex + 1,
 
@@ -348,6 +339,10 @@ function drawPlanner(data){
 
                             data-col="${index + 3}"
 
+                            data-date="${row.date}"
+
+                            data-day="${day}"
+
                             data-technician="${technicians[index]}"
 
                         >
@@ -508,6 +503,28 @@ function enableDragAndDrop(){
                 }
 
 
+                /*
+                ==================================
+                POTWIERDZENIE
+                ==================================
+                */
+
+                const confirmed =
+                await showSwapConfirmation(
+                    draggedCard,
+                    this
+                );
+
+
+                if(!confirmed){
+
+                    draggedCard = null;
+
+                    return;
+
+                }
+
+
                 await swapCards(
                     draggedCard,
                     this
@@ -551,6 +568,8 @@ function enableTouchDrag(cards){
 
     let currentTarget = null;
 
+    let isDragging = false;
+
 
     cards.forEach(card => {
 
@@ -558,10 +577,6 @@ function enableTouchDrag(cards){
         card.addEventListener(
             "touchstart",
             function(e){
-
-                /*
-                jeden palec
-                */
 
                 if(
                     e.touches.length !== 1
@@ -573,6 +588,8 @@ function enableTouchDrag(cards){
 
 
                 touchCard = this;
+
+                isDragging = false;
 
 
                 const touch =
@@ -634,10 +651,8 @@ function enableTouchDrag(cards){
                 }
 
 
-                /*
-                blokujemy scroll dopiero
-                po rozpoczęciu przeciągania
-                */
+                isDragging = true;
+
 
                 e.preventDefault();
 
@@ -719,7 +734,6 @@ function enableTouchDrag(cards){
 
                 }
 
-
             },
             {
                 passive:false
@@ -754,10 +768,27 @@ function enableTouchDrag(cards){
                     );
 
 
-                    await swapCards(
+                    /*
+                    ==================================
+                    POTWIERDZENIE
+                    ==================================
+                    */
+
+                    const confirmed =
+                    await showSwapConfirmation(
                         touchCard,
                         currentTarget
                     );
+
+
+                    if(confirmed){
+
+                        await swapCards(
+                            touchCard,
+                            currentTarget
+                        );
+
+                    }
 
                 }
 
@@ -765,6 +796,8 @@ function enableTouchDrag(cards){
                 touchCard = null;
 
                 currentTarget = null;
+
+                isDragging = false;
 
             }
         );
@@ -796,10 +829,304 @@ function enableTouchDrag(cards){
 
                 currentTarget = null;
 
+                isDragging = false;
+
             }
         );
 
     });
+
+}
+
+
+/*
+==================================================
+OKNO POTWIERDZENIA
+==================================================
+*/
+
+function showSwapConfirmation(card1, card2){
+
+    return new Promise(resolve => {
+
+        /*
+        ==========================================
+        USUŃ STARE OKNO
+        ==========================================
+        */
+
+        const oldModal =
+        document.getElementById(
+            "swap-confirm-modal"
+        );
+
+
+        if(oldModal){
+
+            oldModal.remove();
+
+        }
+
+
+        /*
+        ==========================================
+        DANE KAFELKÓW
+        ==========================================
+        */
+
+        const tech1 =
+        card1.dataset.technician || "";
+
+
+        const tech2 =
+        card2.dataset.technician || "";
+
+
+        const date1 =
+        formatDatePL(
+            card1.dataset.date
+        );
+
+
+        const date2 =
+        formatDatePL(
+            card2.dataset.date
+        );
+
+
+        const task1 =
+        card1.dataset.full || "";
+
+
+        const task2 =
+        card2.dataset.full || "";
+
+
+        /*
+        ==========================================
+        MODAL
+        ==========================================
+        */
+
+        const modal =
+        document.createElement("div");
+
+
+        modal.id =
+        "swap-confirm-modal";
+
+
+        modal.innerHTML = `
+
+            <div class="swap-modal-backdrop">
+
+                <div class="swap-modal">
+
+                    <div class="swap-modal-title">
+
+                        Zamiana kafelków?
+
+                    </div>
+
+
+                    <div class="swap-modal-question">
+
+                        Czy na pewno chcesz
+                        zamienić te zadania
+                        miejscami?
+
+                    </div>
+
+
+                    <div class="swap-preview">
+
+                        <div class="swap-preview-card">
+
+                            <div class="swap-preview-tech">
+
+                                ${escapeHtml(tech1)}
+
+                            </div>
+
+                            <div class="swap-preview-date">
+
+                                ${escapeHtml(date1)}
+
+                            </div>
+
+                            <div class="swap-preview-task">
+
+                                ${escapeHtml(
+                                    task1 || "Puste"
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="swap-arrow">
+
+                            ⇅
+
+                        </div>
+
+
+                        <div class="swap-preview-card">
+
+                            <div class="swap-preview-tech">
+
+                                ${escapeHtml(tech2)}
+
+                            </div>
+
+                            <div class="swap-preview-date">
+
+                                ${escapeHtml(date2)}
+
+                            </div>
+
+                            <div class="swap-preview-task">
+
+                                ${escapeHtml(
+                                    task2 || "Puste"
+                                )}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="swap-modal-buttons">
+
+                        <button
+                            id="swap-cancel"
+                            class="swap-button cancel"
+                        >
+
+                            ANULUJ
+
+                        </button>
+
+
+                        <button
+                            id="swap-confirm"
+                            class="swap-button confirm"
+                        >
+
+                            ZAMIEŃ
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        document.body.appendChild(
+            modal
+        );
+
+
+        /*
+        ==========================================
+        ANULUJ
+        ==========================================
+        */
+
+        document
+        .getElementById("swap-cancel")
+        .onclick = function(){
+
+            modal.remove();
+
+            resolve(false);
+
+        };
+
+
+        /*
+        ==========================================
+        ZAMIEŃ
+        ==========================================
+        */
+
+        document
+        .getElementById("swap-confirm")
+        .onclick = function(){
+
+            modal.remove();
+
+            resolve(true);
+
+        };
+
+
+        /*
+        ==========================================
+        KLIKNIĘCIE W TŁO = ANULUJ
+        ==========================================
+        */
+
+        modal
+        .querySelector(
+            ".swap-modal-backdrop"
+        )
+        .addEventListener(
+            "click",
+            function(e){
+
+                if(
+                    e.target === this
+                ){
+
+                    modal.remove();
+
+                    resolve(false);
+
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
+/*
+==================================================
+FORMAT DATY DO POTWIERDZENIA
+==================================================
+*/
+
+function formatDatePL(date){
+
+    if(!date){
+
+        return "";
+
+    }
+
+
+    const p =
+    date.split("-");
+
+
+    if(p.length !== 3){
+
+        return date;
+
+    }
+
+
+    return `${p[2]}.${p[1]}.${p[0]}`;
 
 }
 
@@ -836,12 +1163,6 @@ async function swapCards(card1, card2){
     );
 
 
-    /*
-    ==========================================
-    ZABEZPIECZENIE
-    ==========================================
-    */
-
     if(
         !row1 ||
         !row2 ||
@@ -863,12 +1184,6 @@ async function swapCards(card1, card2){
     );
 
 
-    /*
-    ==========================================
-    WIZUALNA ZAMIANA
-    ==========================================
-    */
-
     const task1 =
     card1.dataset.full || "";
 
@@ -879,9 +1194,14 @@ async function swapCards(card1, card2){
 
     /*
     ==========================================
-    ZAPIS DO GOOGLE SHEETS
+    ZABEZPIECZENIE PRZED PODWÓJNYM ZAPISEM
     ==========================================
     */
+
+    document.body.classList.add(
+        "saving"
+    );
+
 
     try{
 
@@ -940,22 +1260,8 @@ async function swapCards(card1, card2){
 
         /*
         ========================================
-        AKTUALIZUJEMY KAFELKI
+        ODCZYT ŚWIEŻYCH DANYCH
         ========================================
-        */
-
-        card1.dataset.full =
-        task2;
-
-
-        card2.dataset.full =
-        task1;
-
-
-        /*
-        odświeżamy cały planner,
-        żeby parser ponownie
-        prawidłowo wyświetlił dane
         */
 
         await loadPlanner();
@@ -983,11 +1289,14 @@ async function swapCards(card1, card2){
         );
 
 
-        /*
-        odświeżenie z arkusza
-        */
-
         await loadPlanner();
+
+    }
+    finally{
+
+        document.body.classList.remove(
+            "saving"
+        );
 
     }
 
@@ -1398,7 +1707,7 @@ ESCAPE HTML
 
 function escapeHtml(text){
 
-    return text
+    return String(text || "")
 
     .replace(
         /&/g,
