@@ -1,8 +1,8 @@
 /*
 ==================================================
-MEDICUS PLANNER v2.0
+MEDICUS PLANNER v2.1
 TV + TABLET + MOBILE
-DRAG & DROP
+DRAG & DROP + CONFIRMATION
 ==================================================
 */
 
@@ -217,6 +217,11 @@ KAFELKI
 
     touch-action:none;
 
+    transition:
+        transform .12s ease,
+        opacity .12s ease,
+        box-shadow .12s ease;
+
 }
 
 
@@ -245,6 +250,30 @@ KAFELKI
     transform:scale(1.03);
 
     z-index:30;
+
+    box-shadow:
+        0 0 0 6px
+        rgba(255,255,255,.15);
+
+}
+
+
+/*
+==================================================
+BLOKADA PODCZAS ZAPISU
+==================================================
+*/
+
+body.saving .card {
+
+    pointer-events:none;
+
+}
+
+
+body.saving {
+
+    cursor:wait;
 
 }
 
@@ -310,7 +339,7 @@ TECHNICY
 
 /*
 ==================================================
-TREŚĆ
+TREŚĆ KAFELKA
 ==================================================
 */
 
@@ -379,6 +408,247 @@ DŁUGI TEKST
     font-size:16px;
 
     z-index:50;
+
+}
+
+
+/*
+==================================================
+OKNO POTWIERDZENIA
+==================================================
+*/
+
+#swap-confirm-modal {
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:100000;
+
+}
+
+
+.swap-modal-backdrop {
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+        rgba(0,0,0,.72);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:20px;
+
+}
+
+
+.swap-modal {
+
+    width:min(
+        600px,
+        100%
+    );
+
+    max-height:90vh;
+
+    overflow:auto;
+
+    background:#1e293b;
+
+    border-radius:18px;
+
+    padding:24px;
+
+    box-shadow:
+        0 25px 70px
+        rgba(0,0,0,.6);
+
+    border:1px solid
+        rgba(255,255,255,.1);
+
+}
+
+
+.swap-modal-title {
+
+    text-align:center;
+
+    font-size:26px;
+
+    font-weight:bold;
+
+    margin-bottom:10px;
+
+}
+
+
+.swap-modal-question {
+
+    text-align:center;
+
+    color:#cbd5e1;
+
+    font-size:17px;
+
+    margin-bottom:22px;
+
+}
+
+
+/*
+==================================================
+PODGLĄD DWÓCH KAFELKÓW
+==================================================
+*/
+
+.swap-preview {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+
+.swap-preview-card {
+
+    flex:1;
+
+    min-width:0;
+
+    background:#0f172a;
+
+    border-radius:12px;
+
+    padding:14px;
+
+    border:1px solid
+        rgba(255,255,255,.1);
+
+}
+
+
+.swap-preview-tech {
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    margin-bottom:4px;
+
+}
+
+
+.swap-preview-date {
+
+    color:#94a3b8;
+
+    font-size:14px;
+
+    margin-bottom:10px;
+
+}
+
+
+.swap-preview-task {
+
+    font-size:15px;
+
+    line-height:1.35;
+
+    word-break:break-word;
+
+}
+
+
+.swap-arrow {
+
+    flex:0 0 auto;
+
+    font-size:30px;
+
+    font-weight:bold;
+
+    color:#94a3b8;
+
+}
+
+
+/*
+==================================================
+PRZYCISKI
+==================================================
+*/
+
+.swap-modal-buttons {
+
+    display:flex;
+
+    gap:12px;
+
+    margin-top:24px;
+
+}
+
+
+.swap-button {
+
+    flex:1;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:15px 10px;
+
+    font-size:17px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    min-height:52px;
+
+}
+
+
+.swap-button.cancel {
+
+    background:#475569;
+
+    color:white;
+
+}
+
+
+.swap-button.cancel:hover {
+
+    background:#64748b;
+
+}
+
+
+.swap-button.confirm {
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+
+.swap-button.confirm:hover {
+
+    background:#3b82f6;
 
 }
 
@@ -550,6 +820,96 @@ TELEFON
     .task-main {
 
         font-size:18px;
+
+    }
+
+
+    /*
+    ==========================================
+    MODAL NA TELEFONIE
+    ==========================================
+    */
+
+    .swap-modal-backdrop {
+
+        padding:12px;
+
+        align-items:flex-end;
+
+    }
+
+
+    .swap-modal {
+
+        width:100%;
+
+        border-radius:18px 18px 10px 10px;
+
+        padding:20px 15px;
+
+        max-height:88vh;
+
+    }
+
+
+    .swap-modal-title {
+
+        font-size:22px;
+
+    }
+
+
+    .swap-modal-question {
+
+        font-size:16px;
+
+    }
+
+
+    /*
+    Na telefonie kafelki
+    pokazujemy jeden pod drugim
+    */
+
+    .swap-preview {
+
+        flex-direction:column;
+
+        gap:8px;
+
+    }
+
+
+    .swap-preview-card {
+
+        width:100%;
+
+    }
+
+
+    .swap-arrow {
+
+        font-size:25px;
+
+        line-height:25px;
+
+        transform:rotate(0deg);
+
+    }
+
+
+    .swap-modal-buttons {
+
+        margin-top:18px;
+
+    }
+
+
+    .swap-button {
+
+        min-height:56px;
+
+        font-size:16px;
 
     }
 
