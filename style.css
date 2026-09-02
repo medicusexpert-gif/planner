@@ -256,7 +256,19 @@ KAFELKI
         rgba(255,255,255,.15);
 
 }
+.card.touch-ready {
 
+    outline:3px solid white;
+
+    outline-offset:3px;
+
+    transform:scale(1.03);
+
+    box-shadow:
+        0 0 0 6px
+        rgba(255,255,255,.15);
+
+}
 
 /*
 ==================================================
