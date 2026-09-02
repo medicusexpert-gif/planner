@@ -556,31 +556,50 @@ TOUCH DRAG
 ==================================================
 */
 
+/*
+==================================================
+TOUCH DRAG - PRZYTRZYMANIE 3 SEKUNDY
+==================================================
+*/
+
 function enableTouchDrag(cards){
 
     let touchCard = null;
 
     let ghost = null;
 
+    let currentTarget = null;
+
+    let holdTimer = null;
+
+    let isDragging = false;
+
     let startX = 0;
 
     let startY = 0;
-
-    let currentTarget = null;
-
-    let isDragging = false;
 
 
     cards.forEach(card => {
 
 
+        /*
+        ==========================================
+        ROZPOCZĘCIE DOTYKU
+        ==========================================
+        */
+
         card.addEventListener(
             "touchstart",
             function(e){
 
-                if(
-                    e.touches.length !== 1
-                ){
+                /*
+                Więcej niż jeden palec =
+                na pewno nie przeciągamy.
+                */
+
+                if(e.touches.length !== 1){
+
+                    cancelTouchDrag();
 
                     return;
 
@@ -604,6 +623,45 @@ function enableTouchDrag(cards){
                 touch.clientY;
 
 
+                /*
+                ==================================
+                CZEKAJ 3 SEKUNDY
+                ==================================
+                */
+
+                holdTimer =
+                setTimeout(
+                    () => {
+
+                        /*
+                        Jeżeli w międzyczasie
+                        pojawił się drugi palec
+                        lub dotyk został anulowany,
+                        nic nie robimy.
+                        */
+
+                        if(
+                            !touchCard ||
+                            isDragging
+                        ){
+
+                            return;
+
+                        }
+
+
+                        isDragging = true;
+
+
+                        touchCard.classList.add(
+                            "touch-ready"
+                        );
+
+
+                    },
+                    3000
+                );
+
             },
             {
                 passive:true
@@ -611,14 +669,31 @@ function enableTouchDrag(cards){
         );
 
 
+        /*
+        ==========================================
+        RUCH PALCA
+        ==========================================
+        */
+
         card.addEventListener(
             "touchmove",
             function(e){
 
-                if(
-                    !touchCard ||
-                    e.touches.length !== 1
-                ){
+                /*
+                Drugi palec =
+                anulujemy przeciąganie.
+                */
+
+                if(e.touches.length !== 1){
+
+                    cancelTouchDrag();
+
+                    return;
+
+                }
+
+
+                if(!touchCard){
 
                     return;
 
@@ -644,18 +719,57 @@ function enableTouchDrag(cards){
                 );
 
 
-                if(distance < 10){
+                /*
+                ==================================
+                PRZED 3 SEKUNDAMI
+                ==================================
+
+                Jeżeli użytkownik przesuwa
+                palcem zanim miną 3 sekundy,
+                traktujemy to jako zwykłe
+                przewijanie / zoomowanie.
+
+                */
+
+                if(!isDragging){
+
+                    /*
+                    Jeżeli ruch jest większy
+                    niż kilka pikseli,
+                    anulujemy oczekiwanie.
+                    */
+
+                    if(distance > 8){
+
+                        clearTimeout(
+                            holdTimer
+                        );
+
+                        holdTimer = null;
+
+                        touchCard = null;
+
+                    }
 
                     return;
 
                 }
 
 
-                isDragging = true;
-
+                /*
+                ==================================
+                PO 3 SEKUNDACH
+                ==================================
+                */
 
                 e.preventDefault();
 
+
+                /*
+                ==================================
+                UTWÓRZ "DUCHA" KAFELKA
+                ==================================
+                */
 
                 if(!ghost){
 
@@ -695,6 +809,12 @@ function enableTouchDrag(cards){
                 ) + "px";
 
 
+                /*
+                ==================================
+                SZUKAMY KAFELKA POD PALCEM
+                ==================================
+                */
+
                 const element =
                 document.elementFromPoint(
                     touch.clientX,
@@ -729,6 +849,7 @@ function enableTouchDrag(cards){
                         "drag-over"
                     );
 
+
                     currentTarget =
                     target;
 
@@ -741,9 +862,23 @@ function enableTouchDrag(cards){
         );
 
 
+        /*
+        ==========================================
+        KONIEC DOTYKU
+        ==========================================
+        */
+
         card.addEventListener(
             "touchend",
             async function(){
+
+                clearTimeout(
+                    holdTimer
+                );
+
+
+                holdTimer = null;
+
 
                 if(!touchCard){
 
@@ -751,6 +886,29 @@ function enableTouchDrag(cards){
 
                 }
 
+
+                /*
+                ==================================
+                JEŻELI NIE BYŁO 3 SEKUND
+                ==================================
+                */
+
+                if(!isDragging){
+
+                    touchCard = null;
+
+                    currentTarget = null;
+
+                    return;
+
+                }
+
+
+                /*
+                ==================================
+                USUŃ DUCHA
+                ==================================
+                */
 
                 if(ghost){
 
@@ -761,18 +919,28 @@ function enableTouchDrag(cards){
                 }
 
 
+                /*
+                ==================================
+                USUŃ PODŚWIETLENIE
+                ==================================
+                */
+
                 if(currentTarget){
 
                     currentTarget.classList.remove(
                         "drag-over"
                     );
 
+                }
 
-                    /*
-                    ==================================
-                    POTWIERDZENIE
-                    ==================================
-                    */
+
+                /*
+                ==================================
+                POTWIERDZENIE
+                ==================================
+                */
+
+                if(currentTarget){
 
                     const confirmed =
                     await showSwapConfirmation(
@@ -793,6 +961,12 @@ function enableTouchDrag(cards){
                 }
 
 
+                /*
+                ==================================
+                RESET
+                ==================================
+                */
+
                 touchCard = null;
 
                 currentTarget = null;
@@ -802,39 +976,75 @@ function enableTouchDrag(cards){
             }
         );
 
+
+        /*
+        ==========================================
+        ANULOWANIE DOTYKU
+        ==========================================
+        */
 
         card.addEventListener(
             "touchcancel",
             function(){
 
-                if(ghost){
-
-                    ghost.remove();
-
-                    ghost = null;
-
-                }
-
-
-                if(currentTarget){
-
-                    currentTarget.classList.remove(
-                        "drag-over"
-                    );
-
-                }
-
-
-                touchCard = null;
-
-                currentTarget = null;
-
-                isDragging = false;
+                cancelTouchDrag();
 
             }
         );
 
     });
+
+
+    /*
+    ==========================================
+    FUNKCJA ANULOWANIA
+    ==========================================
+    */
+
+    function cancelTouchDrag(){
+
+        clearTimeout(
+            holdTimer
+        );
+
+
+        holdTimer = null;
+
+
+        if(ghost){
+
+            ghost.remove();
+
+            ghost = null;
+
+        }
+
+
+        if(currentTarget){
+
+            currentTarget.classList.remove(
+                "drag-over"
+            );
+
+        }
+
+
+        if(touchCard){
+
+            touchCard.classList.remove(
+                "touch-ready"
+            );
+
+        }
+
+
+        touchCard = null;
+
+        currentTarget = null;
+
+        isDragging = false;
+
+    }
 
 }
 
