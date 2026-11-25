@@ -187,7 +187,7 @@ async function loadPlanner(){
         document
         .getElementById("current-month")
         .innerHTML =
-        `${currentMonth} 2026`;
+        `${currentMonth} ${new Date().getFullYear()}`;
 
 
         document
